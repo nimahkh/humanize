@@ -1,0 +1,12 @@
+{
+  "name": "ai-to-human",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "compromise": "^14.13.0",
+    "natural": "^7.0.7",
+    "sentiment": "^5.0.2",
+    "wordnet": "^2.0.0"
+  }
+}
