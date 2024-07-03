@@ -205,7 +205,15 @@ function humanizeText(sentences, tone) {
   });
 }
 
-const text = `As we are moving towards being an AI-heavy product in the future, it would be more appealing and enjoyable for our users to write their letters and CVs using AI without the generated text being detected as AI-written. This feature could also inspire new marketing ideas to attract users to our application. However, there are ATS bots that can recognize AI-generated texts, and this capability will only improve over time.`;
+const text = `Dream work is the practice of exploring and interpreting dreams to gain insight into the subconscious mind. This process has roots in various cultural, spiritual, and psychological traditions. In modern psychology, dream work is often associated with the theories of Sigmund Freud and Carl Jung, who believed that dreams reveal hidden aspects of the psyche.
+
+Freud viewed dreams as a form of wish fulfillment, where repressed desires and unresolved conflicts find expression. He introduced the idea of analyzing the manifest content (the literal storyline of the dream) and the latent content (the hidden psychological meaning). By examining symbols, emotions, and recurring themes, Freud believed that individuals could uncover unconscious thoughts and feelings.
+
+Jung, on the other hand, saw dreams as a bridge to the collective unconscious, a repository of shared human experiences and archetypes. He believed that dreams could provide guidance and wisdom, facilitating personal growth and self-discovery. Jungian dream analysis focuses on identifying archetypal symbols and integrating them into the conscious mind to achieve individuation, the process of becoming one's true self.
+
+In contemporary dream work, various techniques are employed, including dream journaling, lucid dreaming, and group dream sharing. Dream journaling involves recording dreams upon waking to capture details that might otherwise be forgotten. Lucid dreaming, where individuals become aware they are dreaming and can potentially control the dream narrative, is another tool for exploring the subconscious. Group dream sharing allows for diverse interpretations and communal support in understanding dreams.
+
+Dream work is not limited to psychological practices; it is also a feature of many spiritual and indigenous traditions, where dreams are seen as messages from the divine or the spirit world. Whether approached from a psychological, spiritual, or cultural perspective, dream work remains a powerful method for gaining insight into the hidden dimensions of the human experience.`;
 sentences = tokenizer.tokenize(text);
 humanizeText(sentences, "formal").then((humanizedText) => {
   console.log(humanizedText);
