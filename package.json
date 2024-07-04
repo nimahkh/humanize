@@ -11,7 +11,7 @@
     "lint": "eslint",
     "dev": "node index.js",
     "build": "rollup -c",
-    "release": "standard-version -- --no-verify"
+    "release": "standard-version --dry-run --no-verify"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
