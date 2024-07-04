@@ -17,6 +17,11 @@
   "files": [
     "dist"
   ],
+  "standard-version": {
+    "skip": {
+      "changelog": true
+    }
+  },
   "dependencies": {
     "natural": "^7.0.7",
     "wordnet": "^2.0.0"
