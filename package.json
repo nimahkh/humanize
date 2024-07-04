@@ -8,8 +8,7 @@
     "lint": "eslint",
     "dev": "node index.js",
     "build": "rollup -c",
-    "release": "standard-version -- --no-verify",
-    "postrelease": "git push --follow-tags origin main && npm publish --access public"
+    "release": "standard-version -- --no-verify"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
