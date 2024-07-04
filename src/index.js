@@ -110,7 +110,15 @@ On a more practical level, time governs our daily routines and shapes our societ
 
 Yet, despite our advancements in measuring and manipulating time, it remains an enigma. The subjective experience of time—how it can fly when we are joyful and drag when we are in sorrow—reminds us that time is not just a scientific abstraction but a deeply personal phenomenon. In our pursuit to master time, we continue to grapple with its mysteries, striving to understand the fleeting moments that make up the tapestry of our lives.`;
 
-const sentences = tokenizer.tokenize(text);
-humanizeText(sentences, "formal", "EN").then((humanizedText) => {
-  console.log(humanizedText);
-});
+/**
+ * Tokenizes input text and humanizes it based on the specified tone and language.
+ *
+ * @param {string} text - The input text to be humanized.
+ * @param {string} tone - The desired tone for the text (e.g., "formal", "casual").
+ * @param {string} language - The language for the text (e.g., "EN", "FR").
+ * @returns {Promise<string>} - A promise that resolves to the humanized text.
+ */
+export const humanizeInputText = (text, tone, language) => {
+  const sentences = tokenizer.tokenize(text);
+  return humanizeText(sentences, tone, language);
+};
