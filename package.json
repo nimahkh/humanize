@@ -1,7 +1,10 @@
 {
   "name": "@nimahkh/ai-humanizer",
   "version": "1.2.5",
-  "main": "./dist/bundle.js",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "license": "MIT",
   "type": "module",
   "scripts": {
