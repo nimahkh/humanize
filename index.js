@@ -2,20 +2,6 @@ import { applyTone, contractions } from "./dictionaries.js";
 import natural from "natural";
 
 const tokenizer = new natural.SentenceTokenizerNew();
-const wordTokenizer = new natural.WordTokenizer();
-
-const language = "EN";
-const defaultCategory = "N";
-const defaultCategoryCapitalized = "NNP";
-
-const lexicon = new natural.Lexicon(
-  language,
-  defaultCategory,
-  defaultCategoryCapitalized
-);
-const ruleSet = new natural.RuleSet("EN");
-const posTagger = new natural.BrillPOSTagger(lexicon, ruleSet);
-
 /**
  * Replaces formal words with contractions in the text.
  *
@@ -71,9 +57,11 @@ const applyGenericHumanization = (text) => {
  * Processes a sentence by tokenizing and tagging it, then returning the humanized version.
  *
  * @param {string} sentence - The sentence to process.
+ * @param {object} posTagger - The POS tagger for the desired language.
+ * @param {object} wordTokenizer - The word tokenizer for the desired language.
  * @returns {string} - The processed sentence.
  */
-const processSentence = (sentence) => {
+const processSentence = (sentence, posTagger, wordTokenizer) => {
   const words = wordTokenizer.tokenize(sentence);
   const taggedWords = posTagger.tag(words).taggedWords;
   const humanizedWords = taggedWords.map((taggedWord) => taggedWord.token);
@@ -85,12 +73,25 @@ const processSentence = (sentence) => {
  *
  * @param {string[]} sentences - An array of sentences to humanize.
  * @param {string} tone - The desired tone for the text (e.g., "formal", "casual").
+ * @param {string} language - The language for the text (e.g., "EN", "FR").
  * @returns {Promise<string>} - A promise that resolves to the humanized text.
  */
-const humanizeText = (sentences, tone) => {
+const humanizeText = (sentences, tone, language) => {
+  const defaultCategory = "N";
+  const defaultCategoryCapitalized = "NNP";
+
+  const lexicon = new natural.Lexicon(
+    language,
+    defaultCategory,
+    defaultCategoryCapitalized
+  );
+  const ruleSet = new natural.RuleSet(language);
+  const posTagger = new natural.BrillPOSTagger(lexicon, ruleSet);
+  const wordTokenizer = new natural.WordTokenizer();
+
   return new Promise((resolve) => {
     const processedSentences = sentences.map((sentence) =>
-      processSentence(sentence, tone)
+      processSentence(sentence, posTagger, wordTokenizer)
     );
     let joinedText = processedSentences.join(". ");
     let humanizedText = applyTone(joinedText, tone);
@@ -110,6 +111,6 @@ On a more practical level, time governs our daily routines and shapes our societ
 Yet, despite our advancements in measuring and manipulating time, it remains an enigma. The subjective experience of time—how it can fly when we are joyful and drag when we are in sorrow—reminds us that time is not just a scientific abstraction but a deeply personal phenomenon. In our pursuit to master time, we continue to grapple with its mysteries, striving to understand the fleeting moments that make up the tapestry of our lives.`;
 
 const sentences = tokenizer.tokenize(text);
-humanizeText(sentences, "formal").then((humanizedText) => {
+humanizeText(sentences, "formal", "EN").then((humanizedText) => {
   console.log(humanizedText);
 });
