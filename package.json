@@ -3,10 +3,20 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint",
+    "dev": "node index.js"
+  },
   "dependencies": {
     "compromise": "^14.13.0",
+    "eslint": "^9.6.0",
     "natural": "^7.0.7",
     "sentiment": "^5.0.2",
     "wordnet": "^2.0.0"
+  },
+  "devDependencies": {
+    "eslint-plugin-jsdoc": "^48.5.0",
+    "jsdoc": "^4.0.3"
   }
 }

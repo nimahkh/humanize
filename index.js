@@ -1,220 +1,115 @@
-const natural = require("natural");
-const tokenizer = new natural.SentenceTokenizer();
+import { applyTone, contractions } from "./dictionaries.js";
+import natural from "natural";
+
+const tokenizer = new natural.SentenceTokenizerNew();
 const wordTokenizer = new natural.WordTokenizer();
-const wordnet = new natural.WordNet();
 
 const language = "EN";
 const defaultCategory = "N";
 const defaultCategoryCapitalized = "NNP";
 
-var lexicon = new natural.Lexicon(
+const lexicon = new natural.Lexicon(
   language,
   defaultCategory,
   defaultCategoryCapitalized
 );
-var ruleSet = new natural.RuleSet("EN");
-var posTagger = new natural.BrillPOSTagger(lexicon, ruleSet);
+const ruleSet = new natural.RuleSet("EN");
+const posTagger = new natural.BrillPOSTagger(lexicon, ruleSet);
 
-// Function to apply general humanization adjustments
-function applyGenericHumanization(text) {
-  // Adding contractions and informal language
-  let newText = text
-    .replace(/\bis not\b/g, "isn't")
-    .replace(/\bcannot\b/g, "can't")
-    .replace(/\bdo not\b/g, "don't")
-    .replace(/\bwill not\b/g, "won't")
-    .replace(/\bhas not\b/g, "hasn't")
-    .replace(/\bhave not\b/g, "haven't")
-    .replace(/\blet us\b/g, "let's")
-    .replace(/\bit is\b/g, "it's")
-    .replace(/\bhe is\b/g, "he's")
-    .replace(/\bshe is\b/g, "she's")
-    .replace(/\bthey are\b/g, "they're")
-    .replace(/\bwe are\b/g, "we're")
-    .replace(/\byou are\b/g, "you're")
-    .replace(/\bare not\b/g, "aren't")
-    .replace(/\bdid not\b/g, "didn't")
-    .replace(/\bcould not\b/g, "couldn't")
-    .replace(/\bwould not\b/g, "wouldn't");
+/**
+ * Replaces formal words with contractions in the text.
+ *
+ * @param {string} text - The input text to process.
+ * @returns {string} - The text with contractions applied.
+ */
+const replaceContractions = (text) => {
+  return Object.entries(contractions).reduce((acc, [key, value]) => {
+    const regex = new RegExp(`\\b${key}\\b`, "gi");
+    return acc.replace(regex, value);
+  }, text);
+};
 
-  // Splitting and combining sentences to vary sentence length
-  let sentences = newText.split(/([.?!])\s*(?=[A-Z])/g);
-  newText = sentences
-    .map((sentence, index) => {
-      if (index % 2 === 1) return sentence; // Retain punctuation marks
-      // Randomly combine sentences if there is a next sentence
-      if (Math.random() > 0.5 && index + 2 < sentences.length) {
-        return sentence + ", and " + sentences[index + 2].trim();
-      } else if (Math.random() > 0.5 && index + 2 < sentences.length) {
-        return sentence + ", but " + sentences[index + 2].trim();
-      } else {
-        return sentence;
-      }
-    })
-    .join("");
+/**
+ * Splits and combines sentences to vary sentence length.
+ *
+ * @param {string} text - The input text to process.
+ * @returns {string} - The text with varied sentence lengths.
+ */
+const varySentenceLength = (text) => {
+  const sentences = text.split(/([.?!])\s*(?=[A-Z])/g);
+  const combinedSentences = [];
 
+  for (let i = 0; i < sentences.length; i += 2) {
+    let sentence = sentences[i];
+    if (i + 1 < sentences.length) {
+      sentence += sentences[i + 1];
+    }
+    if (Math.random() > 0.5 && i + 2 < sentences.length) {
+      sentence += ", and " + sentences[i + 2].trim();
+      i += 2;
+    }
+    combinedSentences.push(sentence);
+  }
+
+  return combinedSentences.join(" ");
+};
+
+/**
+ * Applies generic humanization adjustments to the text by replacing formal words with contractions
+ * and varying sentence length.
+ *
+ * @param {string} text - The input text to humanize.
+ * @returns {string} - The humanized text.
+ */
+const applyGenericHumanization = (text) => {
+  let newText = replaceContractions(text);
+  newText = varySentenceLength(newText);
   return newText;
-}
+};
 
-// Functions to apply different tones
-function applyFormalTone(text) {
-  return text
-    .replace(/\bisn't\b/g, "is not")
-    .replace(/\bcan't\b/g, "cannot")
-    .replace(/\bdon't\b/g, "do not")
-    .replace(/\bwon't\b/g, "will not")
-    .replace(/\bhasn't\b/g, "has not")
-    .replace(/\bhaven't\b/g, "have not")
-    .replace(/\blet's\b/g, "let us")
-    .replace(/\bit's\b/g, "it is")
-    .replace(/\bhe's\b/g, "he is")
-    .replace(/\bshe's\b/g, "she is")
-    .replace(/\bthey're\b/g, "they are")
-    .replace(/\bwe're\b/g, "we are")
-    .replace(/\byou're\b/g, "you are")
-    .replace(/\baren't\b/g, "are not")
-    .replace(/\bdidn't\b/g, "did not")
-    .replace(/\bcouldn't\b/g, "could not")
-    .replace(/\bwouldn't\b/g, "would not")
-    .replace(/\bi'm\b/gi, "I am")
-    .replace(/\bwe've\b/gi, "we have")
-    .replace(/\bthey've\b/gi, "they have")
-    .replace(/\bI'll\b/g, "I will")
-    .replace(/\bI've\b/g, "I have")
-    .replace(/\bI'm\b/g, "I am")
-    .replace(/\byou're\b/g, "you are")
-    .replace(/\bthere's\b/g, "there is")
-    .replace(/\bwhere's\b/g, "where is")
-    .replace(/\bwho's\b/g, "who is")
-    .replace(/\bwhat's\b/g, "what is")
-    .replace(/\bhow's\b/g, "how is")
-    .replace(/\bwe'll\b/g, "we will")
-    .replace(/\bthey'll\b/g, "they will")
-    .replace(/\bI'd\b/g, "I would")
-    .replace(/\bthey'd\b/g, "they would");
-}
+/**
+ * Processes a sentence by tokenizing and tagging it, then returning the humanized version.
+ *
+ * @param {string} sentence - The sentence to process.
+ * @returns {string} - The processed sentence.
+ */
+const processSentence = (sentence) => {
+  const words = wordTokenizer.tokenize(sentence);
+  const taggedWords = posTagger.tag(words).taggedWords;
+  const humanizedWords = taggedWords.map((taggedWord) => taggedWord.token);
+  return humanizedWords.join(" ");
+};
 
-function applyCasualTone(text) {
-  return text
-    .replace(/\bi am\b/g, "I'm")
-    .replace(/\byou are\b/g, "you're")
-    .replace(/\bwe are\b/g, "we're")
-    .replace(/\bthey are\b/g, "they're")
-    .replace(/\bit is\b/g, "it's")
-    .replace(/\bhe is\b/g, "he's")
-    .replace(/\bshe is\b/g, "she's")
-    .replace(/\bi have\b/g, "I've")
-    .replace(/\byou have\b/g, "you've")
-    .replace(/\bwe have\b/g, "we've")
-    .replace(/\bthey have\b/g, "they've")
-    .replace(/\bi will\b/g, "I'll")
-    .replace(/\byou will\b/g, "you'll")
-    .replace(/\bwe will\b/g, "we'll")
-    .replace(/\bthey will\b/g, "they'll")
-    .replace(/\bi would\b/g, "I'd")
-    .replace(/\byou would\b/g, "you'd")
-    .replace(/\bwe would\b/g, "we'd")
-    .replace(/\bthey would\b/g, "they'd")
-    .replace(/\bdo not\b/g, "don't")
-    .replace(/\bcannot\b/g, "can't")
-    .replace(/\bwill not\b/g, "won't")
-    .replace(/\bhave not\b/g, "haven't")
-    .replace(/\bhas not\b/g, "hasn't")
-    .replace(/\bdid not\b/g, "didn't")
-    .replace(/\bcould not\b/g, "couldn't")
-    .replace(/\bwould not\b/g, "wouldn't");
-}
-
-function applyEnthusiasticTone(text) {
-  return text
-    .replace(/\bI am\b/g, "I'm so")
-    .replace(/\bvery\b/g, "incredibly")
-    .replace(/\bgreat\b/g, "fantastic")
-    .replace(/\bgood\b/g, "amazing")
-    .replace(/\bhappy\b/g, "thrilled")
-    .replace(/\bexcited\b/g, "super excited")
-    .replace(/\blove\b/g, "absolutely love")
-    .replace(/\breally\b/g, "truly")
-    .replace(/\bamazing\b/g, "spectacular")
-    .replace(/\bwonderful\b/g, "wonderful!")
-    .replace(/\bfantastic\b/g, "fantastic!")
-    .replace(/\bexcellent\b/g, "excellent!")
-    .replace(/\bgreat\b/g, "great!")
-    .replace(/\bawesome\b/g, "awesome!")
-    .replace(/\bstunning\b/g, "stunning!")
-    .replace(/!/g, "!!!");
-}
-
-function applyAuthoritativeTone(text) {
-  return text
-    .replace(/\bI think\b/g, "I am confident")
-    .replace(/\bmaybe\b/g, "definitely")
-    .replace(/\bperhaps\b/g, "certainly")
-    .replace(/\bI feel\b/g, "I believe")
-    .replace(/\bI guess\b/g, "I am sure")
-    .replace(/\bI hope\b/g, "I expect")
-    .replace(/\bI suppose\b/g, "I know")
-    .replace(/\bI might\b/g, "I will")
-    .replace(/\bshould\b/g, "must")
-    .replace(/\bcan\b/g, "will")
-    .replace(/\bcould\b/g, "will");
-}
-function humanizeText(sentences, tone) {
+/**
+ * Humanizes an array of sentences by applying generic humanization and tone-specific transformations.
+ *
+ * @param {string[]} sentences - An array of sentences to humanize.
+ * @param {string} tone - The desired tone for the text (e.g., "formal", "casual").
+ * @returns {Promise<string>} - A promise that resolves to the humanized text.
+ */
+const humanizeText = (sentences, tone) => {
   return new Promise((resolve) => {
-    let processedSentences = [];
-    sentences.forEach((sentence, sentenceIndex) => {
-      let words = wordTokenizer.tokenize(sentence);
-      let taggedWords = posTagger.tag(words);
-
-      let humanizedWords = [];
-
-      let processWord = (index) => {
-        if (index >= taggedWords.taggedWords.length) {
-          processedSentences.push(humanizedWords.join(" "));
-          if (processedSentences.length === sentences.length) {
-            let joinedText = processedSentences.join(". ");
-            let humanizedText = applyGenericHumanization(joinedText);
-            switch (tone) {
-              case "formal":
-                humanizedText = applyFormalTone(humanizedText);
-                break;
-              case "casual":
-                humanizedText = applyCasualTone(humanizedText);
-                break;
-              case "enthusiastic":
-                humanizedText = applyEnthusiasticTone(humanizedText);
-                break;
-              case "authoritative":
-                humanizedText = applyAuthoritativeTone(humanizedText);
-                break;
-            }
-            resolve(humanizedText);
-          }
-          return;
-        }
-
-        let taggedWord = taggedWords.taggedWords[index];
-        let word = taggedWord.token;
-
-        humanizedWords.push(word);
-        processWord(index + 1);
-      };
-
-      processWord(0);
-    });
+    const processedSentences = sentences.map((sentence) =>
+      processSentence(sentence, tone)
+    );
+    let joinedText = processedSentences.join(". ");
+    let humanizedText = applyTone(joinedText, tone);
+    humanizedText = applyGenericHumanization(humanizedText);
+    resolve(humanizedText);
   });
-}
+};
 
-const text = `Dream work is the practice of exploring and interpreting dreams to gain insight into the subconscious mind. This process has roots in various cultural, spiritual, and psychological traditions. In modern psychology, dream work is often associated with the theories of Sigmund Freud and Carl Jung, who believed that dreams reveal hidden aspects of the psyche.
+const text = `In the annals of human history, the concept of time has always fascinated philosophers, scientists, and laypeople alike. The relentless march of time, marked by the steady ticking of a clock, governs our lives in ways both profound and mundane. From the early sundials of ancient civilizations to the atomic clocks of the modern era, humanity's quest to measure and understand time reflects our deeper desire to make sense of our existence.
 
-Freud viewed dreams as a form of wish fulfillment, where repressed desires and unresolved conflicts find expression. He introduced the idea of analyzing the manifest content (the literal storyline of the dream) and the latent content (the hidden psychological meaning). By examining symbols, emotions, and recurring themes, Freud believed that individuals could uncover unconscious thoughts and feelings.
+In the realm of physics, time is a dimension, a continuous sequence of events that occur in apparently irreversible succession from the past through the present to the future. Einstein's theory of relativity revolutionized our understanding of time, suggesting that time is not absolute but relative and can be affected by speed and gravity. This notion that time can stretch and compress, bend and warp, challenged the traditional Newtonian view and opened up new vistas in our understanding of the universe.
 
-Jung, on the other hand, saw dreams as a bridge to the collective unconscious, a repository of shared human experiences and archetypes. He believed that dreams could provide guidance and wisdom, facilitating personal growth and self-discovery. Jungian dream analysis focuses on identifying archetypal symbols and integrating them into the conscious mind to achieve individuation, the process of becoming one's true self.
+Philosophically, time raises intriguing questions about the nature of reality and our place within it. Is time a fundamental structure of the universe, or is it merely a human construct, a way to impose order on the chaos of our experiences? The concept of time travel, long a staple of science fiction, teases our imaginations with the possibilities of altering the past and shaping the future.
 
-In contemporary dream work, various techniques are employed, including dream journaling, lucid dreaming, and group dream sharing. Dream journaling involves recording dreams upon waking to capture details that might otherwise be forgotten. Lucid dreaming, where individuals become aware they are dreaming and can potentially control the dream narrative, is another tool for exploring the subconscious. Group dream sharing allows for diverse interpretations and communal support in understanding dreams.
+On a more practical level, time governs our daily routines and shapes our societal structures. The division of time into years, months, days, and hours organizes our work, our leisure, and our rituals. The synchronization of time across the globe through coordinated time zones facilitates international trade, travel, and communication, creating a connected world where events in one part of the world can have immediate repercussions in another.
 
-Dream work is not limited to psychological practices; it is also a feature of many spiritual and indigenous traditions, where dreams are seen as messages from the divine or the spirit world. Whether approached from a psychological, spiritual, or cultural perspective, dream work remains a powerful method for gaining insight into the hidden dimensions of the human experience.`;
-sentences = tokenizer.tokenize(text);
+Yet, despite our advancements in measuring and manipulating time, it remains an enigma. The subjective experience of time—how it can fly when we are joyful and drag when we are in sorrow—reminds us that time is not just a scientific abstraction but a deeply personal phenomenon. In our pursuit to master time, we continue to grapple with its mysteries, striving to understand the fleeting moments that make up the tapestry of our lives.`;
+
+const sentences = tokenizer.tokenize(text);
 humanizeText(sentences, "formal").then((humanizedText) => {
   console.log(humanizedText);
 });
