@@ -21,6 +21,9 @@ export default {
     terser(),
     json(),
     builtins(),
+    copy({
+      targets: [{ src: "package.json", dest: "dist" }],
+    }),
   ],
   external: ["natural"],
 };
